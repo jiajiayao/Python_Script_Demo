@@ -64,6 +64,7 @@ def main():
     urs_t1="https://www.taobao.com"
     host="https://movie.douban.com/top250"
     res=opeanurl(host)
+    print(opeanurl("https://user.qzone.qq.com/2074688761/main?_t_=0.9995540349303984").text)
     depth=find_depth(res)
 
     result=[]
