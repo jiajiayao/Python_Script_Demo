@@ -35,7 +35,7 @@ def get_depth(av_id):
         'oid': av_id,  # 视频id
         'sort': '0'
     }
-    res=requests.get(com_url,params=params_url,headers=headers_url).json()['data']['page']
+    res=requests.get(com_url,params=params_url,headers=headers_url,timeout=1).json()['data']['page']
     count=res['count']
     size=res['size']
     acount=res['acount']
@@ -48,55 +48,64 @@ def get_depth(av_id):
 
 #获取评论
 def get_commment(av_id):
+    global result_back
     depth=get_depth(av_id)
-    #depth=200
+    #depth=20
     result=[]
     for i in range(depth):
-        print("第%d页"%(i+1))
-        params_url = {
-            'jsonp': 'jsonp',
-            # 页数从0开始的所以要+1
-            'type': '1',
-            'pn':i+1,
-            'oid': av_id,  # 视频id
-            'sort': '0'
-        }
+        try:
+            print("第%d页"%(i+1))
+            params_url = {
+                'jsonp': 'jsonp',
+                # 页数从0开始的所以要+1
+                'type': '1',
+                'pn':i+1,
+                'oid': av_id,  # 视频id
+                'sort': '0'
+            }
 
-        res = requests.get(com_url, params=params_url, headers=headers_url, timeout=1).json()['data']['replies']
-        for comment in res:
-            #第一层的回复
-            _time=comment['ctime']
-            timeArray = time.localtime(_time)
-            _time = time.strftime("%Y/%m/%d", timeArray)
-
-            rep_a=comment['content']['message']
-            #用户相关
-            rep_user=comment['member']
-            name=rep_user['uname']
-            sex=rep_user['sex']
-            lever=rep_user['level_info']['current_level']
-            #print(_time)
-
-            result_back.append([name,sex,lever,rep_a,_time])
-            try:
-                t=comment['replies']
-                #print(len(t))
-                #print(t)
-                for j in range(len(t)):
-                    _time = t[j]['ctime']
+            res = requests.get(com_url, params=params_url, headers=headers_url, timeout=1).json()['data']['replies']
+            for comment in res:
+                try:
+                    # 第一层的回复
+                    _time = comment['ctime']
                     timeArray = time.localtime(_time)
                     _time = time.strftime("%Y/%m/%d", timeArray)
-                    #print(_time)
-                    rep_user = t[j]['member']
+
+                    rep_a = comment['content']['message']
+                    # 用户相关
+                    rep_user = comment['member']
                     name = rep_user['uname']
                     sex = rep_user['sex']
                     lever = rep_user['level_info']['current_level']
-                    rep_b=t[j]['content']['message']
-                    result_back.append([name,sex,lever,rep_b,_time])
-            except:
-                continue
-    return result_back
+                    # print(_time)
 
+                    result_back.append([name, sex, lever, rep_a, _time])
+                    #print(comment['replies'])
+                    if str(comment['replies'])!='None':
+                        t=comment['replies']
+                        #print("评论区深入\n")
+                    #print(len(t))
+                    #print(t)
+                        for j in range(len(t)):
+
+                            _time = t[j]['ctime']
+                            timeArray = time.localtime(_time)
+                            _time = time.strftime("%Y/%m/%d", timeArray)
+                            #print(_time)
+                            rep_user = t[j]['member']
+                            name = rep_user['uname']
+                            sex = rep_user['sex']
+                            lever = rep_user['level_info']['current_level']
+                            rep_b=t[j]['content']['message']
+                            result_back.append([name,sex,lever,rep_b,_time])
+                except:
+                    print("爬取失败")
+                    continue
+        except:
+            print("爬取错误第%d页"%i)
+            continue
+    return result_back
 def out_txt(result):
     with open(str(av_id)+".txt","w",encoding="utf-8")as f:
         for each in result:
@@ -112,18 +121,18 @@ def sm_analyse(result):
     head=["name","type","value","date"]
     for each in result:
         words=each[0]
-        num_yihua+=word_count_in_str(words,'一花')
+        num_yihua=word_count_in_str(words,'一花')
         data.append(['一花-评论','一花',num_yihua,each[1]])
-        num_ernai+=word_count_in_str(words,'二乃')
+        num_ernai=word_count_in_str(words,'二乃')
         data.append(['二乃-评论', '二乃', num_ernai, each[1]])
-        num_sanjiu+=word_count_in_str(words,'三玖')
+        num_sanjiu=word_count_in_str(words,'三玖')
         data.append(['三玖-评论', '三玖', num_sanjiu, each[1]])
-        num_siyue+=word_count_in_str(words,'四叶')
+        num_siyue=word_count_in_str(words,'四叶')
         data.append(['四叶-评论', '四叶', num_siyue, each[1]])
-        num_wuyue+=word_count_in_str(words,'五月')
+        num_wuyue=word_count_in_str(words,'五月')
         data.append(['五月-评论', '五月', num_wuyue, each[1]])
     print(data)
-    with open("五等分的花嫁评论.csv", 'w',newline='',encoding='utf8') as t:  # numline是来控制空的行数的
+    with open("五等分的花嫁评论_day.csv", 'w',newline='',encoding='utf8') as t:  # numline是来控制空的行数的
         writer = csv.writer(t)  # 这一步是创建一个csv的写入器（个人理解）
         writer.writerow(head)  # 写入标签
         writer.writerows(data)  # 写入样本数据
@@ -154,7 +163,13 @@ def time_data(result):
 
 if __name__ == '__main__':
     avs=get_dm_av("https://api.bilibili.com/pgc/web/season/section?season_id=26283")
+    t=0
+    print("获取番剧av号")
+    for each in avs:
+        t+=get_depth(each)
+    print(t)
     i=0
+    print("爬取中。。。")
     for each in avs:
         try:
             i=i+1
@@ -162,6 +177,7 @@ if __name__ == '__main__':
             res=get_commment(each)
         except:
             print("爬取失败第%d集av %s"%(i,each))
+            print(res)
             result = time_data(res)
             # 评论加时间
             print(result)
