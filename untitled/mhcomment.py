@@ -97,6 +97,8 @@ def get_comment(av_id):
             res=get_result(com_url,params_url).json()
             item = get_target_value('ctime', res['data'], [])
             data.append(item)
+            if i%100==0:
+                print("正在爬取第%d页"%i)
         except:
             print("爬取错误第%d页"%i)
             continue
@@ -124,7 +126,7 @@ def main():
     out_txt(get_comment(25467), '食戟之灵ctime')
     '''
     Name_id=opean_txt('b站漫画前69.txt')
-    print(Name_id[1])
+    #print(Name_id[1])
     for each in Name_id:
         out_txt(get_comment(each['season_id']),each['title'])
     #data=opean_txt('五等分的花嫁ctime.txt')
