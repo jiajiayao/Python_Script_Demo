@@ -1,6 +1,18 @@
 import requests
+import pandas
+import time
+import csv
+import numpy as np
 ############导入和导出##########
 #导出类
+#导出csv
+out_csv_data=[]
+def out_csv(head,data,name):
+    with open(name+".csv", 'w',newline='',encoding='utf8') as t:  # numline是来控制空的行数的
+        writer = csv.writer(t)  # 这一步是创建一个csv的写入器（个人理解）
+        writer.writerow(head)  # 写入标签
+        writer.writerows(data)  # 写入样本数据
+    print("导出%s.csv成功"%name)
 #导出txt
 def out_txt(data,name):
     with open(name+".txt","w",encoding="utf-8")as f:
@@ -109,28 +121,55 @@ def oneindata(data):
         for item in each:
             t.append(item)
     return t
-def AnalysisData():
-
-def main():
-    #out_txt(get_comment(24793),'五等分的花嫁ctime')
-    '''
-    out_txt(get_comment(25966), '史莱姆ctime')
-    out_txt(get_comment(25717), '鬼灭ctime')
-    out_txt(get_comment(26009), '大小姐ctime')
-    out_txt(get_comment(25497), 'jojoctime')
-    out_txt(get_comment(25504), '斗罗ctime')
-    out_txt(get_comment(25447), '英雄学院ctime')
-    out_txt(get_comment(25969), '碧蓝ctime')
-    out_txt(get_comment(25506), '大师兄ctime')
-    out_txt(get_comment(25746), '灵能百分百ctime')
-    out_txt(get_comment(25467), '食戟之灵ctime')
-    '''
-    Name_id=opean_txt('b站漫画前69.txt')
-    #print(Name_id[1])
+def AnalysisData(title,data):
+    global out_csv_data
+    indexs=creatIndex()
+    times=[]
+    for each in data:
+        timeArray = time.localtime(each)
+        _time = time.strftime("%Y-%m-%d", timeArray)
+        times.append(_time)
+    all=0
+    for index in indexs:
+        count=0
+        for _time in times:
+            if _time==index:
+                all=all+1
+                count=count+1
+        out_csv_data.append([title,all,count,index])
+    print(indexs)
+    print(times)
+def out_comment():
+    Name_id = opean_txt('b站漫画前69.txt')
+    # print(Name_id[1])
     for each in Name_id:
-        out_txt(get_comment(each['season_id']),each['title'])
+        try:
+            out_txt(get_comment(each['season_id']), each['title'])
+        except:
+            print("导出失败%s" % Name_id)
+def in_comment():
+    Name_id = opean_txt('b站漫画前69.txt')
+    for each in Name_id:
+        try:
+            data=oneindata(opean_txt(each['title']+'.txt'))
+            AnalysisData(each['title'],data)
+        except:
+            print("打开%s失败"%each['title'])
+    out_csv(['name','type','value','date'],out_csv_data,'漫画评论')
+def creatIndex():
+    dateindex = pandas.date_range(start='2019-1-1', end='2019-5-4')
+    # print(dateindex.values)
+    dateindex = dateindex.values
+    t = []
+    for each in dateindex:
+        t.append(str(each)[0:10])
+    dateindex = t
+    #print(dateindex)
+    return dateindex
+def main():
+    in_comment()
+
     #data=opean_txt('五等分的花嫁ctime.txt')
     #data_1=oneindata(data)
-
 if __name__ == '__main__':
     main()
