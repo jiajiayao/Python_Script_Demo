@@ -9,7 +9,7 @@ import tty, termios
 
 atexit.register(GPIO.cleanup)
 
-servopin = 22
+servopin = 20
 servopin2 = 21
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(servopin, GPIO.OUT, initial=False)
