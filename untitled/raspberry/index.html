@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<div><span></span><span class="on2 before"></span><span></span><span class="on2 left"></span><span></span><span class="on2 right"></span><span></span><span class="on2 cabk"></span><span></span></div>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>佳佳的小车</title>
+	<script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+<style type="text/css">
+body,td,th {
+	color: #F5F4F4;
+}
+</style>
+</head>
+<body background="../Pictures/lovewallpaper/4656-106.jpg">
+><script type="text/javascript">
+	function go(k){
+		$.post('/car_cam',{k:k},function(){});
+	}
+	function video_content(){
+	    herf=window.location.href;
+	    herf=herf.substring(0,s.length-1);
+        herf=herf+":8080/?action=stream";
+        $("#video_cam").append('<img src='+herf+
+        'width=1192' +'height=651'+'/>')
+    }
+	$(function(){
+		window.document.onkeydown = abc;
+		video_content();
+		function abc(env){
+			env = (env) ? env : window.event;
+			if(env.keyCode=='87'){
+				go('w');
+			}
+			if(env.keyCode=='83'){
+				go('s');
+			}
+			if(env.keyCode=='65'){
+				go('a');
+			}
+			if(env.keyCode=='68'){
+				go('d');
+			}
+			if(env.keyCode=='81'){
+				go('q');
+			}
+			if(env.keyCode=='69'){
+				go('e');
+			}
+			if(env.keyCode=='90'){
+				go('z');
+			}
+			if(env.keyCode=='88'){
+				go('x');
+			}
+			if(env.keyCode.charCodeAt()=='i'){
+			    go('i');
+            }
+			if(env.keyCode.charCodeAt()=='k'){
+			    go('k');
+            }
+			if(env.keyCode.charCodeAt()=='j'){
+			    go('j');
+            }
+			if(env.keyCode.charCodeAt()=='l'){
+			    go('l');
+            }
+		}
+	});
+</script>
+<div id="vido_cam" align="center" color="#00FFFF"><h1>beta 0.1 build by jiajia.qq:2074688761</h1>
+  </div>
+</body>
+</html>
+
