@@ -20,7 +20,7 @@ def getAnswer(question):
 
     res = requests.get(config.Set['targetUrl'], params=params_url, headers=config.Set['headers_url'], timeout=10)
     
-    time.sleep(random.random() * 1)
+    time.sleep(random.random() * 0.1)
 
     res=res.json()
     
